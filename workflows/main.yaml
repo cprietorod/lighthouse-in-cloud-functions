@@ -1,0 +1,39 @@
+- initialize:
+    assign:
+      - spreadsheet_id: ${sys.get_env("SPREADSHEET_ID")}
+      - range: "Sheet1!A2:A"
+      - project_id: ${sys.get_env("GOOGLE_CLOUD_PROJECT_ID")}
+      - dataset_id: ${sys.get_env("DATASET_ID")}
+      - table_id: ${sys.get_env("TABLE_ID")}
+      - create_disposition: "CREATE_IF_NEEDED"  # creates table if it doesn't exist
+      - write_disposition: "WRITE_TRUNCATE"  # truncates table if it already exists
+      - bucket_name:  ${sys.get_env("BUCKET_NAME")}
+  
+- read_urls:
+    call: googleapis.sheets.v4.spreadsheets.values.get
+    args:
+      spreadsheetId: ${spreadsheet_id}
+      range: ${range}
+    result: read_response
+
+- outerLoop:
+    for:
+      value: url
+      in: ${read_response.values}
+      steps:
+        - call_function:
+            call: http.get
+            args:
+              url: https://us-central1-cprietorodriguez.cloudfunctions.net/my-lighthouse-function2
+              query:
+                url: ${url}
+        - insert_into_bigquery:
+            call: googleapis.bigquery.v2.tabledata.insertAll
+zzzz              projectId: ${project_id}
+              datasetId: ${dataset_id}
+              tableId: ${table_id}
+              body:
+                rows:
+                  - json: 
+                      json: "${function_response}"
+            result: upload_resutl

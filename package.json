@@ -1,0 +1,18 @@
+{
+  "name": "my-lighthouse-function",
+  "version": "1.0.0",
+  "description": "Cloud Function to run Lighthouse audits",
+  "main": "index.js",
+  "scripts": {
+    "gcp-build": "node node_modules/puppeteer/install.mjs",
+    "start": "xvfb-run --auto-servernum functions-framework --target=helloHttp --port=8081 ",
+    "deploy": "gcloud functions deploy my-lighthouse-function2 --gen2 --runtime nodejs20 --trigger-http --allow-unauthenticated --entry-point helloHttp --memory=1024M --set-env-vars CHROME-PATH=.cache/puppeteer/chrome-headless-shell/linux-126.0.6478.63/chrome-headless-shell-linux64/chrome-headless-shell --source . "
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.4.0",
+    "@google-cloud/storage": "^7.11.2",
+    "chrome-launcher": "^1.1.2",
+    "lighthouse": "^12.1.0",
+    "puppeteer": "^22.12.0"
+  }
+}
